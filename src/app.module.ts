@@ -6,9 +6,11 @@ import { OrganizersModule } from './compoments/organizers/organizers.module';
 import { EventsModule } from './compoments/events/events.module';
 import { TicketTiersModule } from './compoments/ticket_tiers/ticket_tiers.module';
 import { TicketsModule } from './compoments/tickets/tickets.module';
+import { TransactionsModule } from './compoments/transactions/transactions.module';
+import { RefundsModule } from './compoments/refunds/refunds.module';
 
 @Module({
-  imports: [UsersModule, OrganizersModule, EventsModule, TicketTiersModule, TicketsModule],
+  imports: [UsersModule, OrganizersModule, EventsModule, TicketTiersModule, TicketsModule, TransactionsModule, RefundsModule],
   controllers: [AppController],
   providers: [AppService],
 })
