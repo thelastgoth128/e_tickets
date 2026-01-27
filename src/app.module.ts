@@ -8,9 +8,10 @@ import { TicketTiersModule } from './compoments/ticket_tiers/ticket_tiers.module
 import { TicketsModule } from './compoments/tickets/tickets.module';
 import { TransactionsModule } from './compoments/transactions/transactions.module';
 import { RefundsModule } from './compoments/refunds/refunds.module';
+import { WaitlistModule } from './compoments/waitlist/waitlist.module';
 
 @Module({
-  imports: [UsersModule, OrganizersModule, EventsModule, TicketTiersModule, TicketsModule, TransactionsModule, RefundsModule],
+  imports: [UsersModule, OrganizersModule, EventsModule, TicketTiersModule, TicketsModule, TransactionsModule, RefundsModule, WaitlistModule],
   controllers: [AppController],
   providers: [AppService],
 })
