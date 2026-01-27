@@ -5,9 +5,10 @@ import { UsersModule } from './compoments/users/users.module';
 import { OrganizersModule } from './compoments/organizers/organizers.module';
 import { EventsModule } from './compoments/events/events.module';
 import { TicketTiersModule } from './compoments/ticket_tiers/ticket_tiers.module';
+import { TicketsModule } from './compoments/tickets/tickets.module';
 
 @Module({
-  imports: [UsersModule, OrganizersModule, EventsModule, TicketTiersModule],
+  imports: [UsersModule, OrganizersModule, EventsModule, TicketTiersModule, TicketsModule],
   controllers: [AppController],
   providers: [AppService],
 })
