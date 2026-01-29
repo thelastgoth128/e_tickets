@@ -61,6 +61,10 @@ export class RefundsService {
       );
     }
 
+    if (!buyer_id){
+      throw new NotFoundException("buyer_id is required")
+    }
+
     const refund = new Refund();
     refund.transaction_id = transaction_id;
     refund.buyer_id = buyer_id;
@@ -135,6 +139,10 @@ export class RefundsService {
         'Invalid status. Must be APPROVED, REJECTED, or COMPLETED',
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (!admin_notes){
+      throw new HttpException("Admin notes are required to update refund status", HttpStatus.BAD_REQUEST);
     }
 
     refund.status = status;

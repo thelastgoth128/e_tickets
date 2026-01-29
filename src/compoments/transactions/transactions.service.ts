@@ -104,6 +104,10 @@ export class TransactionsService {
           await this.transactionRepo.save(transaction);
         }
 
+        if (!transaction) {
+          throw new NotFoundException("Transaction not found")
+        }
+
         return {
           statusCode: 200,
           message: 'Payment initiated successfully - Funds held in escrow',
