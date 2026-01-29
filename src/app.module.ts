@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './compoments/users/users.module';
@@ -14,8 +16,27 @@ import { NotificationsModule } from './compoments/notifications/notifications.mo
 import { AuditLogModule } from './compoments/audit_log/audit_log.module';
 
 @Module({
-  imports: [UsersModule, OrganizersModule, EventsModule, TicketTiersModule, TicketsModule, TransactionsModule, RefundsModule, WaitlistModule, FeedbackModule, NotificationsModule, AuditLogModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'database.sqlite',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // Auto-create tables (use cautiously in prod)
+    }),
+    UsersModule,
+    OrganizersModule,
+    EventsModule,
+    TicketTiersModule,
+    TicketsModule,
+    TransactionsModule,
+    RefundsModule,
+    WaitlistModule,
+    FeedbackModule,
+    NotificationsModule,
+    AuditLogModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
