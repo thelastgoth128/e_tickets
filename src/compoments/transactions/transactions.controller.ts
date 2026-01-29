@@ -1,34 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { InitialPayoutDto } from './dto/initial-payout.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiOkResponse } from '@nestjs/swagger';
+import type { Request } from 'express';
 
+@ApiTags('transactions')
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+  constructor(private readonly transactionsService: TransactionsService) { }
 
-  @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
+  @Post('make-payment')
+  @ApiOperation({ summary: 'Process Transaction (PayChangu)', description: 'Initiate payment using PayChangu. Funds held in escrow.' })
+  @ApiResponse({ status: 201, description: 'Payment initiated successfully and held in escrow.' })
+  create(@Body() createTransactionDto: CreateTransactionDto, @Req() req: Request) {
+    return this.transactionsService.processPayment(createTransactionDto, req);
+  }
+
+  @Post('release-escrow/:transactionId')
+  @ApiOperation({ summary: 'Release Escrow', description: 'Release funds from escrow to organizer after event completion.' })
+  @ApiResponse({ status: 200, description: 'Escrow funds released to organizer.' })
+  releaseEscrow(@Param('transactionId') transactionId: string, @Body() body: { organizer_mobile: string }) {
+    return this.transactionsService.releaseEscrow(+transactionId, body.organizer_mobile);
+  }
+
+  @Post('refund-escrow/:transactionId')
+  @ApiOperation({ summary: 'Refund from Escrow', description: 'Refund funds from escrow back to buyer.' })
+  @ApiResponse({ status: 200, description: 'Escrow funds refunded.' })
+  refundEscrow(@Param('transactionId') transactionId: string, @Body() body: { refund_amount: number }) {
+    return this.transactionsService.refundEscrow(+transactionId, body.refund_amount);
+  }
+
+  @Post('cash-out')
+  @ApiOperation({ summary: 'Cash Out', description: 'Cashes out money to account (Admin only).' })
+  @ApiResponse({ status: 201, description: 'Successfully cashed out.' })
+  initiatePayout(@Body() initialPayoutDto: InitialPayoutDto) {
+    // Access control: Admin only (implementation pending)
+    const { mobile, amount } = initialPayoutDto;
+    return this.transactionsService.initiatePayout(mobile, String(amount));
+  }
+
+  @Get('status/:tx_ref')
+  @ApiOperation({ summary: 'Get Payment Status', description: 'Check status of a transaction on PayChangu including escrow status.' })
+  @ApiOkResponse({ description: 'Status successfully fetched.' })
+  getPaymentsStatus(@Param('tx_ref') tx_ref: string) {
+    return this.transactionsService.getPaymentStatus(tx_ref);
+  }
+
+  @Get('verify/:tx_ref')
+  @ApiOperation({ summary: 'Verify Payment', description: 'Verify success of a transaction.' })
+  @ApiOkResponse({ description: 'Payment is successful.' })
+  verifyPayment(@Param('tx_ref') tx_ref: string) {
+    return this.transactionsService.verifyPayment(tx_ref);
   }
 
   @Get()
+  @ApiOperation({ summary: 'List Transactions', description: 'List all transactions (Admin/Auditor).' })
+  @ApiResponse({ status: 200, description: 'List of transactions.' })
   findAll() {
     return this.transactionsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
-    return this.transactionsService.update(+id, updateTransactionDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transactionsService.remove(+id);
   }
 }
