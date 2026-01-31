@@ -1,13 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTransactionDto {
-    @ApiProperty({ example: 1, description: 'ID of the ticket being purchased' })
-    ticketId: number;
+    @ApiProperty({ example: 'uuid-ticket-123', description: 'ID of the ticket being purchased' })
+    ticketId: string;
+
+    @ApiProperty({ example: 'uuid-event-123', description: 'ID of the event' })
+    eventId: string;
+
+    @ApiProperty({ example: 1, description: 'ID of the organizer' })
+    organizerId: number;
 
     @ApiProperty({ example: 50.00, description: 'Amount to be paid' })
     amount: number;
 
-    @ApiProperty({ example: 'credit_card', description: 'Method of payment (e.g., credit_card, mobile_money)' })
+    @ApiProperty({ example: 'mobile_money', description: 'Method of payment (e.g., mobile_money)' })
     paymentMethod: string;
 
     @ApiProperty({ example: 'buyer', description: 'Role of the payer' })
