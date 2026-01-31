@@ -4,12 +4,12 @@ export class CreateAuditLogDto {
     @ApiProperty({ example: 'CREATE_EVENT', description: 'Action performed' })
     action: string;
 
-    @ApiProperty({ example: 'Event', description: 'Entity affected' })
-    entity: string;
+    @ApiProperty({ example: 'uuid-user-123', description: 'ID of the user who performed the action' })
+    userId: string;
 
-    @ApiProperty({ example: 'User 1 created Event 5', description: 'Details of the action' })
-    details: string;
+    @ApiProperty({ example: 'uuid-event-123', description: 'ID of the related event (optional)', required: false })
+    eventId?: string;
 
-    @ApiProperty({ example: 1, description: 'ID of the user who performed the action' })
-    userId: number;
+    @ApiProperty({ example: { ip: '127.0.0.1' }, description: 'Additional metadata', required: false })
+    metadata?: any;
 }
