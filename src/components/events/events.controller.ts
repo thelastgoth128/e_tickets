@@ -10,38 +10,73 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) { }
 
   @Post()
-  @ApiOperation({ summary: 'Create Event', description: 'Organizer creates a new event.' })
+  @ApiOperation({
+    summary: 'Create Event',
+    description: 'Create a new event. \n\n**Role: Organizer**'
+  })
   @ApiResponse({ status: 201, description: 'Event created.' })
   create(@Body() createEventDto: CreateEventDto) {
     return this.eventsService.create(createEventDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List Events', description: 'Publicly list all published events.' })
+  @ApiOperation({
+    summary: 'List Events',
+    description: 'Publicly list all published events. \n\n**Role: Buyer, Organizer, Verifier, Admin, Auditor**'
+  })
   @ApiResponse({ status: 200, description: 'List of events.' })
   findAll() {
     return this.eventsService.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get Event Details', description: 'Get details of a specific event.' })
+  @ApiOperation({
+    summary: 'Get Event Details',
+    description: 'Get details of a specific event. \n\n**Role: Buyer, Organizer, Verifier, Admin, Auditor**'
+  })
   @ApiResponse({ status: 200, description: 'Event details.' })
   @ApiResponse({ status: 404, description: 'Event not found.' })
   findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(+id);
+    return this.eventsService.findOne(id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update Event', description: 'Organizer updates event details.' })
+  @ApiOperation({
+    summary: 'Update Event',
+    description: 'Update event details. \n\n**Role: Organizer**'
+  })
   @ApiResponse({ status: 200, description: 'Event updated.' })
   update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(+id, updateEventDto);
+    return this.eventsService.update(id, updateEventDto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Cancel Event', description: 'Organizer or Admin cancels an event.' })
-  @ApiResponse({ status: 200, description: 'Event cancelled.' })
+  @ApiOperation({
+    summary: 'Delete Event',
+    description: 'Permamently remove an event. \n\n**Role: Organizer, Admin**'
+  })
+  @ApiResponse({ status: 200, description: 'Event deleted.' })
   remove(@Param('id') id: string) {
-    return this.eventsService.remove(+id);
+    return this.eventsService.remove(id);
+  }
+
+  @Patch(':id/publish')
+  @ApiOperation({
+    summary: 'Publish Event',
+    description: 'Make an event visible to buyers. \n\n**Role: Organizer**'
+  })
+  @ApiResponse({ status: 200, description: 'Event published.' })
+  publish(@Param('id') id: string) {
+    return this.eventsService.publish(id);
+  }
+
+  @Patch(':id/cancel')
+  @ApiOperation({
+    summary: 'Cancel Event',
+    description: 'Cancel an event and trigger automatic refunds. \n\n**Role: Organizer, Admin**'
+  })
+  @ApiResponse({ status: 200, description: 'Event cancelled.' })
+  cancel(@Param('id') id: string) {
+    return this.eventsService.cancel(id);
   }
 }
