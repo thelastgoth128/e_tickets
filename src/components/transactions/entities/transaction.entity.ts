@@ -45,10 +45,10 @@ export class Transaction {
     organizer_id: number;
 
     @Column({ nullable: true })
-    event_id: number;
+    event_id: string;
 
     @Column({ nullable: true })
-    ticket_id: number;
+    ticket_id: string;
 
     @CreateDateColumn()
     created_at: Date;
