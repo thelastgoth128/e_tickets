@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -17,12 +17,19 @@ import { AuditLogModule } from './compoments/audit_log/audit_log.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'database.sqlite',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // Auto-create tables (use cautiously in prod)
+    ConfigModule.forRoot({ 
+      isGlobal: true,
+      envFilePath: ".env",
+    }),
+    TypeOrmModule.forRootAsync({
+      imports:[ConfigModule],
+      useFactory: async (configService : ConfigService) => ({
+        type: 'postgres',
+        url:configService.get<string>('DATABASE_URL'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true, // Auto-create tables (use cautiously in prod)
+      }),
+      inject: [ConfigService],
     }),
     UsersModule,
     OrganizersModule,
