@@ -14,6 +14,7 @@ import { WaitlistModule } from './compoments/waitlist/waitlist.module';
 import { FeedbackModule } from './compoments/feedback/feedback.module';
 import { NotificationsModule } from './compoments/notifications/notifications.module';
 import { AuditLogModule } from './compoments/audit_log/audit_log.module';
+import { AuthModule } from './components/auth/auth.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { AuditLogModule } from './compoments/audit_log/audit_log.module';
     WaitlistModule,
     FeedbackModule,
     NotificationsModule,
-    AuditLogModule
+    AuditLogModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
