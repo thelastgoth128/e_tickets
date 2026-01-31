@@ -37,7 +37,7 @@ export class TransactionsService {
   }
 
   create(createTransactionDto: CreateTransactionDto) {
-    return 'This action adds a new transaction';
+    return this.processPayment(createTransactionDto, {} as any);
   }
 
   async processPayment(createTransactionDto: CreateTransactionDto, @Req() req: Request): Promise<any> {
@@ -57,12 +57,12 @@ export class TransactionsService {
     transaction.mobile = mobile;
     transaction.currency = 'MWK';
     transaction.status = 'PENDING';
-    
+
     // Initialize escrow
     transaction.escrow_status = 'HELD';
     transaction.escrow_held_at = new Date();
-    transaction.organizer_id = createTransactionDto['organizer_id'];
-    transaction.event_id = createTransactionDto['event_id'];
+    transaction.organizer_id = createTransactionDto['organizer_id'] || createTransactionDto['organizerId'];
+    transaction.event_id = createTransactionDto['event_id'] || createTransactionDto['eventId'];
     transaction.ticket_id = createTransactionDto.ticketId;
 
     await this.transactionRepo.save(transaction);
@@ -303,19 +303,31 @@ export class TransactionsService {
     }
   }
 
-  findAll() {
-    return `This action returns all transactions`;
+  async findAll(): Promise<Transaction[]> {
+    return await this.transactionRepo.find({
+      relations: ['refunds']
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  async findOne(id: number): Promise<Transaction> {
+    const transaction = await this.transactionRepo.findOne({
+      where: { id },
+      relations: ['refunds']
+    });
+    if (!transaction) {
+      throw new NotFoundException(`Transaction #${id} not found`);
+    }
+    return transaction;
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
+  async update(id: number, updateTransactionDto: UpdateTransactionDto): Promise<Transaction> {
+    const transaction = await this.findOne(id);
+    const updatedTransaction = this.transactionRepo.merge(transaction, updateTransactionDto);
+    return await this.transactionRepo.save(updatedTransaction);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+  async remove(id: number): Promise<void> {
+    const transaction = await this.findOne(id);
+    await this.transactionRepo.remove(transaction);
   }
 }
