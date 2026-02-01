@@ -12,7 +12,6 @@ export class AuthGuard implements CanActivate {
     constructor(
         private jwtService : JwtService,
         private reflector : Reflector,
-        private userService : UsersService
     ){}
 
     async canActivate(context: ExecutionContext): Promise<boolean>  {
