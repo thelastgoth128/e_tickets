@@ -19,13 +19,13 @@ export class UsersService {
     if (exists) {
       throw new Error('User already exists, please login');
     }
-    createUserDto.role = UserRole.BUYER;
-    const user = await this.usersrep.save(createUserDto);
+    // createUserDto.role = UserRole.BUYER;
+    // const user = await this.usersrep.save(createUserDto);
 
-    const payload = {
-      userid: user.user_id,
+    // const payload = {
+    //   userid: user.user_id,
 
-    }
+    // }
   }
 
   findAll() {
