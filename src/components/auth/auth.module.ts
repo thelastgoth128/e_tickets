@@ -13,7 +13,7 @@ import { AuthGuard } from './guards/authGuard';
     UsersModule,UsersModule,
     JwtModule.register({
       global:true,
-      secret:process.env.JWT_SECRET,
+      secret:process.env.JWT_SECRET || 'secret',
       signOptions:{ expiresIn: '1d'}
     }),
   ],
@@ -21,7 +21,6 @@ import { AuthGuard } from './guards/authGuard';
   providers: [AuthService,{
     provide:APP_GUARD,
     useClass:AuthGuard
-  },JwtService],
-  exports: [JwtService],
+  }],
 })
 export class AuthModule { }
