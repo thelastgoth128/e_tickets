@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('events')
 @Controller('events')
@@ -15,8 +16,12 @@ export class EventsController {
     description: 'Create a new event. \n\n**Role: Organizer**'
   })
   @ApiResponse({ status: 201, description: 'Event created.' })
-  create(@Body() createEventDto: CreateEventDto) {
-    return this.eventsService.create(createEventDto);
+  @UseInterceptors(FileInterceptor('image'))
+  create(@Body() createEventDto: CreateEventDto, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Event image required');
+    }
+    return this.eventsService.create(createEventDto, file);
   }
 
   @Get()
