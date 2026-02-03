@@ -4,19 +4,28 @@ import { Repository } from 'typeorm';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { Event, EventStatus } from './entities/event.entity';
+import { Organizer } from '../organizers/entities/organizer.entity';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Organizer)
+    private readonly organizerrep: Repository<Organizer>,
   ) { }
 
   async create(createEventDto: CreateEventDto): Promise<Event> {
+    const organizer = await this.organizerrep.findOne({
+      where: { organizer_id: createEventDto.organizerId },
+    });
+    if (!organizer) {
+      throw new NotFoundException(`Organizer with ID ${createEventDto.organizerId} not found`);
+    }
     const event = this.eventRepository.create({
       ...createEventDto,
       date_time: new Date(createEventDto.date),
-      organizer: { id: createEventDto.organizerId } as any, // Simple mapping for now
+      organizer: organizer, // Simple mapping for now
     });
     return await this.eventRepository.save(event);
   }
