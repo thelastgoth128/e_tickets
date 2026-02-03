@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
             throw new UnauthorizedException("you have no access token");
         }
         try{
-            const data = await this.jwtService.verifyAsync(token,{secret:process.env.JWT_SECRET})
+            const data = await this.jwtService.verify(token)
 
             request['user'] = data
 
