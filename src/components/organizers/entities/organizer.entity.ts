@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Event } from '../../events/entities/event.entity';
 
@@ -10,30 +10,30 @@ export enum ApprovalStatus {
 
 @Entity('organizers')
 export class Organizer {
-    @PrimaryColumn('uuid')
+    @PrimaryGeneratedColumn('uuid')
     organizer_id: string;
 
     @OneToOne(() => User, (user) => user.organizer)
     @JoinColumn({ name: 'organizer_id' })
     user: User;
 
-    @Column()
+    @Column({nullable: true})
     business_name: string;
 
-    @Column()
+    @Column({nullable: true})
     bank_account_number: string;
 
-    @Column()
+    @Column({nullable: true})
     bank_code: string;
 
     @Column({ nullable: true })
     KYC_documents: string;
 
     @Column({
-        type: 'enum',
-        enum: ApprovalStatus,
-        default: ApprovalStatus.PENDING,
-    })
+        // type: 'enum',
+        // enum: ApprovalStatus,
+        // default: ApprovalStatus.PENDING,
+    nullable:true},)
     approval_status: ApprovalStatus;
 
     @OneToMany(() => Event, (event) => event.organizer)

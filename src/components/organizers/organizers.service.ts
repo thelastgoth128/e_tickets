@@ -17,7 +17,7 @@ export class OrganizersService {
   }
 
   async findAll() {
-    return await this.userrep.find({where: {role: UserRole.ORGANIZER}})
+    return await this.userrep.find({where: {role: UserRole.ORGANIZER},relations:['organizer']});
   }
 
   findOne(id: number) {

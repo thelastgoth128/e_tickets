@@ -41,7 +41,7 @@ export class UsersService {
         user: savedUser
       });
       await this.organizerrep.save(organizer);
-      
+
       await Object.assign(savedUser, organizer)
     }
     return savedUser;
@@ -62,7 +62,7 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return await this.usersRepository.findOne({ where: { email } });
+    return await this.usersRepository.findOne({ where: { email }, relations: ['organizer'] });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
