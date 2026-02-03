@@ -26,9 +26,6 @@ export class Event {
     @Column()
     title: string;
 
-    @Column()
-    category: string;
-
     @Column('text')
     description: string;
 
