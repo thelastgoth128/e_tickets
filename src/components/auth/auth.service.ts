@@ -38,7 +38,7 @@ export class AuthService {
         email: user.email,
         full_name: user.full_name,
         role: user.role,
-        organizer_id: user.organizer.organizer_id,
+        organizer_id: user.organizer ? user.organizer.organizer_id : null,
       },
     };
   }
