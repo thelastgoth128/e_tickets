@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreateOrganizerDto } from './dto/create-organizer.dto';
 import { UpdateOrganizerDto } from './dto/update-organizer.dto';
+import { Repository } from 'typeorm';
+import { Organizer } from './entities/organizer.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class OrganizersService {
+  constructor(
+    @InjectRepository(Organizer)
+    private readonly organizerrep: Repository<Organizer>,
+  ){}
   create(createOrganizerDto: CreateOrganizerDto) {
     return 'This action adds a new organizer';
   }
 
-  findAll() {
-    return `This action returns all organizers`;
+  async findAll() {
+   return await this.organizerrep.find()
   }
 
   findOne(id: number) {
