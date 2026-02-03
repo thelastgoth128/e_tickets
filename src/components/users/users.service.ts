@@ -35,22 +35,26 @@ export class UsersService {
     });
 
     const savedUser = await this.usersRepository.save(user);
+
     if (createUserDto.role === UserRole.ORGANIZER) {
       const organizer = await this.organizerrep.create({
         user: savedUser
       });
       await this.organizerrep.save(organizer);
+      
+      await Object.assign(savedUser, organizer)
     }
-
     return savedUser;
   }
 
   async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+    return await this.usersRepository.find({
+      relations: ['organizer'],
+    });
   }
 
   async findOne(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { user_id: id } });
+    const user = await this.usersRepository.findOne({ where: { user_id: id }, relations: ["organizer"] });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
