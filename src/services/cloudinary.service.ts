@@ -72,6 +72,7 @@ export class UploadService {
           }
         },
       );
+      uploadStream.end(file.buffer);
 
     });
   }
