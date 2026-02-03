@@ -5,12 +5,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserRole } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Organizer } from '../organizers/entities/organizer.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Organizer)
+    private organizerrep: Repository<Organizer>,
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -31,7 +34,15 @@ export class UsersService {
       role: role || UserRole.BUYER,
     });
 
-    return await this.usersRepository.save(user);
+    const savedUser = await this.usersRepository.save(user);
+    if (createUserDto.role === UserRole.ORGANIZER) {
+      const organizer = await this.organizerrep.create({
+        user: savedUser
+      });
+      await this.organizerrep.save(organizer);
+    }
+
+    return savedUser;
   }
 
   async findAll(): Promise<User[]> {
