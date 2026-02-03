@@ -5,6 +5,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { Event, EventStatus } from './entities/event.entity';
 import { Organizer } from '../organizers/entities/organizer.entity';
+import { UploadService } from 'src/services/cloudinary.service';
 
 @Injectable()
 export class EventsService {
@@ -13,9 +14,11 @@ export class EventsService {
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Organizer)
     private readonly organizerrep: Repository<Organizer>,
+    private uploadService: UploadService,
   ) { }
 
-  async create(createEventDto: CreateEventDto): Promise<Event> {
+  async create(createEventDto: Omit<CreateEventDto, 'image_url'>, file: Express.Multer.File): Promise<Event> {
+    const image_url = await this.uploadService.uploadFile(file, 'events/images');
     const organizer = await this.organizerrep.findOne({
       where: { organizer_id: createEventDto.organizerId },
     });
@@ -26,6 +29,7 @@ export class EventsService {
       ...createEventDto,
       date_time: new Date(createEventDto.date),
       organizer: organizer, // Simple mapping for now
+      image_url,
     });
     return await this.eventRepository.save(event);
   }
