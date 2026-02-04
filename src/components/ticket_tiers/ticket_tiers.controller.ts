@@ -27,20 +27,20 @@ export class TicketTiersController {
   @ApiOperation({ summary: 'Get Ticket Tier', description: 'Get details of a specific ticket tier.' })
   @ApiResponse({ status: 200, description: 'Ticket tier details.' })
   findOne(@Param('id') id: string) {
-    return this.ticketTiersService.findOne(+id);
+    return this.ticketTiersService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update Ticket Tier', description: 'Organizer updates ticket tier details.' })
   @ApiResponse({ status: 200, description: 'Ticket tier updated.' })
   update(@Param('id') id: string, @Body() updateTicketTierDto: UpdateTicketTierDto) {
-    return this.ticketTiersService.update(+id, updateTicketTierDto);
+    return this.ticketTiersService.update(id, updateTicketTierDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete Ticket Tier', description: 'Organizer removes a ticket tier.' })
   @ApiResponse({ status: 200, description: 'Ticket tier deleted.' })
   remove(@Param('id') id: string) {
-    return this.ticketTiersService.remove(+id);
+    return this.ticketTiersService.remove(id);
   }
 }
