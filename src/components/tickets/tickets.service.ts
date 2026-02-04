@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { Ticket, TicketStatus } from './entities/ticket.entity';
+import { TicketTier } from '../ticket_tiers/entities/ticket_tier.entity';
 import { v4 as uuidv4 } from 'uuid';
 import * as QRCode from 'qrcode';
 
@@ -12,18 +13,35 @@ export class TicketsService {
   constructor(
     @InjectRepository(Ticket)
     private readonly ticketRepository: Repository<Ticket>,
+    @InjectRepository(TicketTier)
+    private readonly ticketTierRepository: Repository<TicketTier>,
   ) { }
 
   async create(createTicketDto: CreateTicketDto): Promise<Ticket> {
     const qrData = uuidv4();
+
+    const tier = await this.ticketTierRepository.findOne({ where: { tier_id: createTicketDto.tierId } });
+    if (!tier) {
+      throw new NotFoundException(`Ticket Tier with ID ${createTicketDto.tierId} not found`);
+    }
+
+    if (tier.capacity <= 0) {
+      throw new BadRequestException('This ticket tier is sold out');
+    }
+
     const ticket = this.ticketRepository.create({
       ...createTicketDto,
       QR_code: qrData,
       status: TicketStatus.ACTIVE,
       event: { event_id: createTicketDto.eventId } as any,
-      ticketTier: { id: createTicketDto.tierId } as any,
+      ticketTier: tier,
       user: createTicketDto.userId ? ({ user_id: createTicketDto.userId } as any) : null,
     });
+
+    // Update capacity
+    tier.capacity -= 1;
+    await this.ticketTierRepository.save(tier);
+
     return await this.ticketRepository.save(ticket);
   }
 
