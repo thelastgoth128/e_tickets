@@ -41,8 +41,8 @@ export class Transaction {
     released_at: Date; // When money was released to organizer
 
     // Foreign keys
-    @Column({ nullable: true })
-    organizer_id: number;
+    @Column({ nullable: true, type: 'varchar' })
+    organizer_id: string;
 
     @Column({ nullable: true })
     event_id: string;
