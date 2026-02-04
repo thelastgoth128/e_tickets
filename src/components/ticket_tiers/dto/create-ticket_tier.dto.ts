@@ -10,6 +10,6 @@ export class CreateTicketTierDto {
     @ApiProperty({ example: 100, description: 'Total number of tickets available in this tier' })
     capacity: number;
 
-    @ApiProperty({ example: 1, description: 'ID of the event this tier belongs to' })
-    eventId: number;
+    @ApiProperty({ example: 'uuid-event-123', description: 'ID of the event this tier belongs to' })
+    eventId: string;
 }
