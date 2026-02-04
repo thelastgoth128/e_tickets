@@ -7,8 +7,8 @@ export class CreateTransactionDto {
     @ApiProperty({ example: 'uuid-event-123', description: 'ID of the event' })
     eventId: string;
 
-    @ApiProperty({ example: 1, description: 'ID of the organizer' })
-    organizerId: number;
+    @ApiProperty({ example: 'uuid-organizer-123', description: 'ID of the organizer' })
+    organizerId: string;
 
     @ApiProperty({ example: 50.00, description: 'Amount to be paid' })
     amount: number;
