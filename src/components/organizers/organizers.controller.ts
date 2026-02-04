@@ -27,20 +27,20 @@ export class OrganizersController {
   @ApiOperation({ summary: 'Get Organizer details', description: 'Retrieve specific organizer details.' })
   @ApiResponse({ status: 200, description: 'Organizer details.' })
   findOne(@Param('id') id: string) {
-    return this.organizersService.findOne(+id);
+    return this.organizersService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update Organizer', description: 'Update organizer profile.' })
   @ApiResponse({ status: 200, description: 'Organizer updated.' })
   update(@Param('id') id: string, @Body() updateOrganizerDto: UpdateOrganizerDto) {
-    return this.organizersService.update(+id, updateOrganizerDto);
+    return this.organizersService.update(id, updateOrganizerDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete Organizer', description: 'Remove an organizer profile. Admin only.' })
   @ApiResponse({ status: 200, description: 'Organizer deleted.' })
   remove(@Param('id') id: string) {
-    return this.organizersService.remove(+id);
+    return this.organizersService.remove(id);
   }
 }
