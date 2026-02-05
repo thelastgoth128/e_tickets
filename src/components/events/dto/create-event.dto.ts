@@ -18,4 +18,5 @@ export class CreateEventDto {
 
     @ApiProperty({ example: 1, description: 'ID of the organizer creating the event' })
     organizerId: string;
+
 }
