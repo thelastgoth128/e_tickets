@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { Event, EventStatus } from './entities/event.entity';
 import { Organizer } from '../organizers/entities/organizer.entity';
 import { UploadService } from 'src/services/cloudinary.service';
+import { TicketTier } from '../ticket_tiers/entities/ticket_tier.entity';
 
 @Injectable()
 export class EventsService {
@@ -15,6 +16,7 @@ export class EventsService {
     @InjectRepository(Organizer)
     private readonly organizerrep: Repository<Organizer>,
     private uploadService: UploadService,
+    private readonly dataSource: DataSource,
   ) { }
 
   async create(createEventDto: Omit<CreateEventDto, 'image_url'>, file: Express.Multer.File): Promise<Event> {
@@ -25,14 +27,32 @@ export class EventsService {
     if (!organizer) {
       throw new NotFoundException(`Organizer with ID ${createEventDto.organizerId} not found`);
     }
-    const event = this.eventRepository.create({
-      ...createEventDto,
-      date_time: new Date(createEventDto.date),
-      organizer: organizer, // Simple mapping for now
-      image_url,
+
+    return await this.dataSource.transaction(async manager => {
+      const event = manager.getRepository(Event).create({
+        ...createEventDto,
+        date_time: new Date(createEventDto.date),
+        organizer,
+        image_url,
+      });
+
+      await manager.getRepository(Event).save(event);
+
+      const tiers = createEventDto.tiers.map(tierDto =>
+        manager.getRepository(TicketTier).create({
+          ...tierDto,
+          event,
+        }),
+      );
+
+      await manager.getRepository(TicketTier).save(tiers);
+
+      // attach tiers to event object for return
+      event.ticketTiers = tiers;
+      return event;
     });
-    return await this.eventRepository.save(event);
   }
+
 
   async findAll(): Promise<Event[]> {
     return await this.eventRepository.find({
