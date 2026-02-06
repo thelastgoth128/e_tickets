@@ -17,8 +17,8 @@ export class TransactionsController {
     description: 'Initiate payment using PayChangu. Funds held in escrow. \n\n**Role: Buyer, Admin**'
   })
   @ApiResponse({ status: 201, description: 'Payment initiated successfully and held in escrow.' })
-  create(@Body() createTransactionDto: CreateTransactionDto, @Req() req: Request) {
-    return this.transactionsService.processPayment(createTransactionDto, req);
+  create(@Body() createTransactionDto: CreateTransactionDto) {
+    return this.transactionsService.processPayment(createTransactionDto,);
   }
 
   @Post('release-escrow/:transactionId')

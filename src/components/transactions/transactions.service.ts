@@ -37,10 +37,10 @@ export class TransactionsService {
   }
 
   create(createTransactionDto: CreateTransactionDto) {
-    return this.processPayment(createTransactionDto, {} as any);
+    return this.processPayment(createTransactionDto);
   }
 
-  async processPayment(createTransactionDto: CreateTransactionDto, @Req() req: Request): Promise<any> {
+  async processPayment(createTransactionDto: CreateTransactionDto): Promise<any> {
     const { amount, mobile } = createTransactionDto;
     const mobileMoneyOperatorId = this.getMobileMoneyOperatorIds(mobile);
     const charge_id = this.transactionId();
