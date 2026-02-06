@@ -48,7 +48,10 @@ export class Transaction {
     event_id: string;
 
     @Column({ nullable: true })
-    ticket_id: string;
+    tier_id: string;
+
+    @Column({ default: 1 })
+    quantity: number;
 
     @CreateDateColumn()
     created_at: Date;

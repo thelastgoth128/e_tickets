@@ -13,6 +13,12 @@ export class CreateTransactionDto {
     @ApiProperty({ example: 50.00, description: 'Amount to be paid' })
     amount: number;
 
+    @ApiProperty({ example: 1, description: 'Quantity of tickets' })
+    quantity: number;
+
+    @ApiProperty({ example: 'uuid-tier-123', description: 'ID of the ticket tier' })
+    tierId: string;
+
     @ApiProperty({ example: 'mobile_money', description: 'Method of payment (e.g., mobile_money)' })
     paymentMethod: string;
 
