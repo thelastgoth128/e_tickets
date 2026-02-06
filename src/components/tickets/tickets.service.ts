@@ -29,6 +29,11 @@ export class TicketsService {
       throw new BadRequestException('This ticket tier is sold out');
     }
 
+    if (tier.capacity < createTicketDto.capacity) {
+      throw new BadRequestException(`Only ${tier.capacity} tickets are available for this tier`);
+    }
+
+    
     const ticket = this.ticketRepository.create({
       ...createTicketDto,
       QR_code: qrData,
