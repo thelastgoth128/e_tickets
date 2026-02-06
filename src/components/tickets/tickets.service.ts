@@ -17,37 +17,48 @@ export class TicketsService {
     private readonly ticketTierRepository: Repository<TicketTier>,
   ) { }
 
-  async create(createTicketDto: CreateTicketDto): Promise<Ticket> {
-    const qrData = uuidv4();
+  async createBulk(data: { eventId: string, tierId: string, userId?: string, quantity: number, transactionId: number }): Promise<Ticket[]> {
+    const { eventId, tierId, userId, quantity } = data;
 
-    const tier = await this.ticketTierRepository.findOne({ where: { tier_id: createTicketDto.tierId } });
+    const tier = await this.ticketTierRepository.findOne({ where: { tier_id: tierId } });
     if (!tier) {
-      throw new NotFoundException(`Ticket Tier with ID ${createTicketDto.tierId} not found`);
+      throw new NotFoundException(`Ticket Tier with ID ${tierId} not found`);
     }
 
-    if (tier.capacity <= 0) {
-      throw new BadRequestException('This ticket tier is sold out');
+    if (tier.capacity < quantity) {
+      throw new BadRequestException(`Not enough capacity. Requested ${quantity}, available ${tier.capacity}`);
     }
 
-    if (tier.capacity < createTicketDto.capacity) {
-      throw new BadRequestException(`Only ${tier.capacity} tickets are available for this tier`);
+    const tickets: Ticket[] = [];
+    for (let i = 0; i < quantity; i++) {
+      const qrData = uuidv4();
+      const ticket = this.ticketRepository.create({
+        QR_code: qrData,
+        status: TicketStatus.ACTIVE,
+        event: { event_id: eventId } as any,
+        ticketTier: tier,
+        user: userId ? ({ user_id: userId } as any) : null,
+      });
+      tickets.push(ticket);
     }
-
-    
-    const ticket = this.ticketRepository.create({
-      ...createTicketDto,
-      QR_code: qrData,
-      status: TicketStatus.ACTIVE,
-      event: { event_id: createTicketDto.eventId } as any,
-      ticketTier: tier,
-      user: createTicketDto.userId ? ({ user_id: createTicketDto.userId } as any) : null,
-    });
 
     // Update capacity
-    tier.capacity -= 1;
+    tier.capacity -= quantity;
     await this.ticketTierRepository.save(tier);
 
-    return await this.ticketRepository.save(ticket);
+    return await this.ticketRepository.save(tickets);
+  }
+
+  async create(createTicketDto: CreateTicketDto): Promise<Ticket> {
+    // Legacy single creation for direct admin use or similar
+    const result = await this.createBulk({
+      eventId: createTicketDto.eventId,
+      tierId: createTicketDto.tierId,
+      userId: createTicketDto.userId,
+      quantity: 1,
+      transactionId: 0, // Not applicable for direct creation
+    });
+    return result[0];
   }
 
   async generateQRDataURL(qrCode: string): Promise<string> {
