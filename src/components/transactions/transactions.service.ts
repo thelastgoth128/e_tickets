@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, Req } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, Req, BadRequestException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { HttpService } from '@nestjs/axios';
@@ -9,13 +9,18 @@ import type { Request } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
+import { TicketTier } from '../ticket_tiers/entities/ticket_tier.entity';
+import { TicketsService } from '../tickets/tickets.service';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepo: Repository<Transaction>,
+    @InjectRepository(TicketTier)
+    private readonly ticketTierRepository: Repository<TicketTier>,
     private readonly httpService: HttpService,
+    private readonly ticketsService: TicketsService,
   ) { }
 
   private readonly operatorIds = {
@@ -41,7 +46,18 @@ export class TransactionsService {
   }
 
   async processPayment(createTransactionDto: CreateTransactionDto): Promise<any> {
-    const { amount, mobile } = createTransactionDto;
+    const { mobile, quantity, tierId } = createTransactionDto;
+
+    const tier = await this.ticketTierRepository.findOne({ where: { tier_id: tierId } });
+    if (!tier) {
+      throw new NotFoundException(`Ticket Tier with ID ${tierId} not found`);
+    }
+
+    if (tier.capacity < quantity) {
+      throw new BadRequestException(`Only ${tier.capacity} tickets available`);
+    }
+
+    const totalAmount = Number(tier.price) * quantity;
     const mobileMoneyOperatorId = this.getMobileMoneyOperatorIds(mobile);
     const charge_id = this.transactionId();
 
@@ -53,7 +69,8 @@ export class TransactionsService {
 
     const transaction = new Transaction();
     transaction.tx_ref = createTransactionDto.tx_ref;
-    transaction.amount = amount;
+    transaction.amount = totalAmount;
+    transaction.quantity = createTransactionDto.quantity || 1;
     transaction.mobile = mobile;
     transaction.currency = 'MWK';
     transaction.status = 'PENDING';
@@ -63,7 +80,7 @@ export class TransactionsService {
     transaction.escrow_held_at = new Date();
     transaction.organizer_id = createTransactionDto['organizer_id'] || createTransactionDto['organizerId'];
     transaction.event_id = createTransactionDto['event_id'] || createTransactionDto['eventId'];
-    transaction.ticket_id = createTransactionDto.ticketId;
+    transaction.tier_id = createTransactionDto.tierId; // Link to tier, not individual ticket yet
 
     await this.transactionRepo.save(transaction);
 
@@ -82,7 +99,7 @@ export class TransactionsService {
           {
             mobile,
             mobile_money_operator_ref_id: mobileMoneyOperatorId,
-            amount: amount,
+            amount: totalAmount,
             charge_id: charge_id,
             created_at: new Date(),
             first_name: name,
@@ -100,7 +117,7 @@ export class TransactionsService {
           transaction.status = 'COMPLETED';
           transaction.completed_at = new Date();
           transaction.charges = data.data.charges || 0;
-          transaction.net_amount = amount - transaction.charges;
+          transaction.net_amount = Number(transaction.amount) - transaction.charges;
           await this.transactionRepo.save(transaction);
         }
 
@@ -174,9 +191,24 @@ export class TransactionsService {
       const data = response.data;
 
       if (data.status === 'success') {
+        const transaction = await this.transactionRepo.findOne({ where: { tx_ref } });
+        if (transaction && transaction.status !== 'COMPLETED') {
+          transaction.status = 'COMPLETED';
+          transaction.completed_at = new Date();
+          await this.transactionRepo.save(transaction);
+
+          // Issue tickets
+          await this.ticketsService.createBulk({
+            eventId: transaction.event_id,
+            tierId: transaction.tier_id,
+            userId: transaction['user_id'] || null, // Handle user attribution if available
+            quantity: transaction.quantity,
+            transactionId: transaction.id
+          });
+        }
         return {
           statusCode: 200,
-          message: 'Payment verified successfully',
+          message: 'Payment verified and tickets issued successfully',
           data: data.data,
         };
       } else {
