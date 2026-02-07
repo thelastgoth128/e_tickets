@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTransactionDto {
-    @ApiProperty({ example: 'uuid-ticket-123', description: 'ID of the ticket being purchased' })
-    ticketId: string;
-
     @ApiProperty({ example: 'uuid-event-123', description: 'ID of the event' })
     eventId: string;
 
