@@ -12,7 +12,7 @@ export class TicketTier {
     event: Event;
 
     @Column()
-    tier_name: string;
+    name: string;
 
     @Column('decimal', { precision: 10, scale: 2 })
     price: number;
