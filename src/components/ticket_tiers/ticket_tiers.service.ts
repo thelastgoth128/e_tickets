@@ -15,20 +15,20 @@ export class TicketTiersService {
     private readonly eventRepository: Repository<Event>,
   ) { }
 
-  async create(createTicketTierDto: CreateTicketTierDto) {
-    const { eventId, ...rest } = createTicketTierDto;
-    const event = await this.eventRepository.findOne({ where: { event_id: eventId } });
-    if (!event) {
-      throw new Error(`Event with ID ${eventId} not found`);
-    }
+  async create(createTicketTierDto: CreateTicketTierDto) {}
+  //   const { eventId, ...rest } = createTicketTierDto;
+  //   const event = await this.eventRepository.findOne({ where: { event_id: eventId } });
+  //   if (!event) {
+  //     throw new Error(`Event with ID ${eventId} not found`);
+  //   }
 
-    const ticketTier = this.ticketTierRepository.create({
-      ...rest,
-      tier_name: createTicketTierDto.name, // Mapping 'name' from DTO to 'tier_name' in Entity
-      event,
-    });
-    return await this.ticketTierRepository.save(ticketTier);
-  }
+  //   const ticketTier = this.ticketTierRepository.create({
+  //     ...rest,
+  //     tier_name: createTicketTierDto.name, // Mapping 'name' from DTO to 'tier_name' in Entity
+  //     event,
+  //   });
+  //   return await this.ticketTierRepository.save(ticketTier);
+  // }
 
   async findAll() {
     return await this.ticketTierRepository.find({ relations: ['event'] });
@@ -49,7 +49,7 @@ export class TicketTiersService {
 
     const updatedTier = this.ticketTierRepository.merge(tier, {
       ...updateTicketTierDto,
-      tier_name: updateTicketTierDto.name || tier.tier_name,
+      name: updateTicketTierDto.name || tier.name,
     });
     return await this.ticketTierRepository.save(updatedTier);
   }
