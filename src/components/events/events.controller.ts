@@ -17,12 +17,14 @@ export class EventsController {
   })
   @ApiResponse({ status: 201, description: 'Event created.' })
   @UseInterceptors(FileInterceptor('image'))
-  create(@Body() createEventDto: CreateEventDto, @UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('Event image required');
-    }
+  create(@Body() body: any, @UploadedFile() file: Express.Multer.File) {
+    const createEventDto: CreateEventDto = {
+      ...body,
+      tiers: typeof body.tiers === 'string' ? JSON.parse(body.tiers) : body.tiers,
+    };
     return this.eventsService.create(createEventDto, file);
   }
+
 
   @Get()
   @ApiOperation({
