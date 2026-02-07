@@ -15,18 +15,19 @@ import { FeedbackModule } from './components/feedback/feedback.module';
 import { NotificationsModule } from './components/notifications/notifications.module';
 import { AuditLogModule } from './components/audit_log/audit_log.module';
 import { AuthModule } from './components/auth/auth.module';
+import { WebhooksModule } from './components/webhooks/webhooks.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
+    ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
     }),
     TypeOrmModule.forRootAsync({
-      imports:[ConfigModule],
-      useFactory: async (configService : ConfigService) => ({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
-        url:configService.get<string>('DATABASE_URL'),
+        url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true, // Auto-create tables (use cautiously in prod)
       }),
@@ -43,7 +44,8 @@ import { AuthModule } from './components/auth/auth.module';
     FeedbackModule,
     NotificationsModule,
     AuditLogModule,
-    AuthModule
+    AuthModule,
+    WebhooksModule
   ],
   controllers: [AppController],
   providers: [AppService],
