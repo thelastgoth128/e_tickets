@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseIntPipe } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -27,8 +27,8 @@ export class TransactionsController {
     description: 'Release funds from escrow to organizer after event completion. \n\n**Role: Admin**'
   })
   @ApiResponse({ status: 200, description: 'Escrow funds released to organizer.' })
-  releaseEscrow(@Param('transactionId') transactionId: string, @Body() body: { organizer_mobile: string }) {
-    return this.transactionsService.releaseEscrow(+transactionId, body.organizer_mobile);
+  releaseEscrow(@Param('transactionId', ParseIntPipe) transactionId: number, @Body() body: { organizer_mobile: string }) {
+    return this.transactionsService.releaseEscrow(transactionId, body.organizer_mobile);
   }
 
   @Post('refund-escrow/:transactionId')
@@ -37,8 +37,8 @@ export class TransactionsController {
     description: 'Refund funds from escrow back to buyer. \n\n**Role: Admin**'
   })
   @ApiResponse({ status: 200, description: 'Escrow funds refunded.' })
-  refundEscrow(@Param('transactionId') transactionId: string, @Body() body: { refund_amount: number }) {
-    return this.transactionsService.refundEscrow(+transactionId, body.refund_amount);
+  refundEscrow(@Param('transactionId', ParseIntPipe) transactionId: number, @Body() body: { refund_amount: number }) {
+    return this.transactionsService.refundEscrow(transactionId, body.refund_amount);
   }
 
   @Post('cash-out')
@@ -88,7 +88,7 @@ export class TransactionsController {
     description: 'Get details of a specific transaction. \n\n**Role: Buyer, Organizer, Admin, Auditor**'
   })
   @ApiResponse({ status: 200, description: 'Transaction details.' })
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.transactionsService.findOne(id);
   }
 }
