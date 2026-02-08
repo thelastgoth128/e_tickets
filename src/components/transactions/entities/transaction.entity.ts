@@ -50,6 +50,18 @@ export class Transaction {
     @Column({ nullable: true })
     tier_id: string;
 
+     @Column({ nullable: true })
+    paychangu_charge_id: string; // For verification endpoint
+
+    @Column({ nullable: true })
+    paychangu_trans_id: string; // PayChangu's transaction ID
+
+    @Column({ nullable: true })
+    paychangu_ref_id: string; // PayChangu's reference ID
+
+    @Column({nullable: true})
+    paychangu_tx_ref: string; // Reference from PayChangu
+
     @Column({ default: 1 })
     quantity: number;
 
