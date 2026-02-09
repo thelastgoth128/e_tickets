@@ -1,8 +1,8 @@
 import { Controller, Post, Body, Headers, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { WebhooksService } from './webhooks.service';
-import { PayChanguWebhookDto } from './dto/paychangu-webhook.dto';
 import { Public } from '../auth/guards/public';
+import { PayChanguWebhookDto } from './dto/paychangu-webhook.dto';
 
 @ApiTags('webhooks')
 @Controller('webhooks')
